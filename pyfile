@@ -1,0 +1,127 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+from email.header import Header
+
+def send_email_with_attachments(subject,attachment_path,to_emails,cc_emails):
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = 587
+    smtp_username = 'diepdphat1893@gmail.com'
+    smtp_password = 'password'
+    sender_email = 'diepdphat1893@gmail.com'
+    subject = f"Báo cáo ngày {date_str} {subject}"
+    body = """
+<html>
+<head></head>
+<body>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";'><span style='font-family:"Calibri","sans-serif";color:black;'>K&iacute;nh gửi Anh/Chị,</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style='font-family:"Calibri","sans-serif";color:black;'>&nbsp;</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style='font-family:"Calibri","sans-serif";color:black;'>Ph&ograve;ng Kế hoạch, B&aacute;o c&aacute;o v&agrave; Ph&acirc;n t&iacute;ch T&agrave;i ch&iacute;nh k&iacute;nh gửi Anh/Chị: B&aacute;o c&aacute;o ng&agrave;y 12/06/2023 như &nbsp;t&agrave;i liệu đ&iacute;nh k&egrave;m.</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style='font-family:"Calibri","sans-serif";color:black;'>&nbsp;</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style='font-family:"Calibri","sans-serif";color:black;'>Tr&acirc;n trọng!</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style='font-family:"Calibri","sans-serif";color:black;'>&nbsp;</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style='font-family:"Calibri","sans-serif";color:black;'>&nbsp;</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><strong><span style="font-size:15px;color:#1F497D;">PH&Ograve;NG KẾ HOẠCH &ndash; B&Aacute;O C&Aacute;O - PTTC&nbsp;</span></strong><strong><span style="font-size:15px;color:#1F497D;">|&nbsp;</span></strong><strong><span style="font-size:15px;color:#1F497D;">KHỐI T&Agrave;I CH&Iacute;NH &ndash; KẾ HOẠCH</span></strong></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style="font-size:15px;color:#1F497D;">Lầu 11, 25 Bis Nguyễn Thị Minh Khai, P Bến Ngh&eacute;, Quận 1</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><strong><span style="font-size:15px;color:#212121;">E:</span></strong><strong><span style="font-size:15px;color:blue;">&nbsp;</span></strong><span style='font-size:15px;font-family:"Calibri","sans-serif";color:#212121;'><a href="mailto:investment@hdbank.com.vn" target="_blank"><strong>investment@hdbank.com.vn</strong></a></span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style="font-size:15px;color:black;">Nh&acirc;n sự được ph&acirc;n c&ocirc;ng: Nguyễn Thị Th&ugrave;y Duy&ecirc;n</span></p>
+<p style='margin:0in;margin-bottom:.0001pt;font-size:16px;font-family:"Times New Roman","serif";background:white;'><span style="font-size:15px;color:black;">Email: <a href="mailto:duyenntt5@hdbank.com.vn">duyenntt5@hdbank.com.vn</a>&nbsp; &ndash; SĐT: 0338 044 158</span></p>
+</body>
+</html>
+    """.format(date_str)
+
+    # Create the email message
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = ', '.join(to_emails)
+    msg['Cc'] = ', '.join(cc_emails)
+    msg['Subject'] = subject
+    
+    # Add body to the email
+    msg.attach(MIMEText(body, "html"))
+
+   # Open the attachment file and add it to the email
+    with open(attachment_path, "rb") as attachment:
+        # Add the file as an attachment
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(attachment.read())
+
+    # Encode file in ASCII characters to send by email
+    encoders.encode_base64(part)
+
+    # Get the filename and encode it properly
+    attachment_name = Header(attachment_path.split("\\")[-1], "utf-8").encode()
+
+    # Add header as key/value pair to attachment part
+    part.add_header(
+    "Content-Disposition",
+    f"attachment; filename= {attachment_name}",
+    )
+    # Add attachment to message
+    msg.attach(part)
+
+    # Send the email
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.sendmail(sender_email, to_emails + cc_emails, msg.as_string(), mail_options=['SMTPUTF8'])
+
+    
+    print("Email sent successfully!")
+
+# LƯU FILE RA THÀNH NHIỀU FILE TƯƠNG ỨNG TỪNG SHEET:
+
+from openpyxl import load_workbook
+new_new_filename_list=[]
+  ## Load the Excel file
+excel_file = load_workbook(new_filename)
+
+sheets_to_save=['CMB','CIB','CN','THE','KV ĐNB+Tây Nguyên','KV Miền Trung','KV Phía Bắc','KV Hồ Chí Minh','KV Tây Nam Bộ']
+ ## Loop through each sheet in the file
+for sheet_name in sheets_to_save:
+    # Load the sheet into a new workbook:
+    new_workbook = load_workbook(new_filename)
+    new_sheet = new_workbook[sheet_name]
+    
+    # Remove all other sheets from the new workbook:
+    for sheet in new_workbook.sheetnames:
+        if sheet != sheet_name:
+            new_workbook.remove(new_workbook[sheet])
+    # Define the sheet and file name:
+    sheet_mapping = {
+    'CMB': 'Khối KHDN', 'CIB': 'Khối KHDNL', 'CN': 'Khối KHCN', 'THE': 'Khối TTT',
+    'KV ĐNB+Tây Nguyên': 'KV DNB+TN', 'KV Miền Trung': 'KV MT', 'KV Phía Bắc': 'KV HN+PB',
+    'KV Hồ Chí Minh': 'KV HCM', 'KV Tây Nam Bộ': 'KV TNB'
+}
+    # Define the new file name for each files
+    new_new_filename = f'Báo cáo ngày {sheet_mapping[sheet_name]} {date_str}.xlsx'
+    # Define the file path
+    attached_file_path = os.getcwd()+"\\"+new_new_filename
+    # Save it into a list
+    attachment_path_list.append(attached_file_path)
+
+    # Save the sheet to a new Excel file:
+    new_workbook.save(new_new_filename)
+
+print('Your reports are ready now')
+
+# create subects list according to the aboved list
+subjects = ['','- Khối KHDN','- Khối KHDNL','- Khối KHCN','- Khối TTT',
+    '- KV DNB+TN','- KV MT','- KV HN+PB', '- KV HCM','- KV TNB']
+
+
+email_data  = [
+    {
+        'department': 'Khối KHDN',
+        'to_emails': 'example@hdbank.com.vn',
+        'cc_emails': ['example@hdbank.com.vn', 'example@hdbank.com.vn']
+    },
+    {
+        'department': 'Khối KHDNL',
+        'to_emails': ['example@hdbank.com.vn','example@hdbank.com.vn'],
+        'cc_emails': ['example@gmail.com', 'example@hdbank.com.vn']
+    }
+]
+print('Sending reports successfully')
